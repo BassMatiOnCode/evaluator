@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="template-info" file-name="empty.htm" version="2022-12-01" editor="USP" />
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2023-05-21" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2023-05-21" />
+<meta name="version" content="1" />
+<meta name="categories" content="JavaScript > Libraries > Evaluator" />
+<meta name="tags" content="programming, JavaScript, HTML, math, function, evaluator, variable" />
+<meta name="description" content="<em>Evaluator</em> is a JavaScript module that implements variable bindings and input-triggered function evaluation in an HTML document." />
+
+<link rel="icon" type="image/png" href="/favicon.png" sizes="16x16" />
+<link rel="stylesheet" href="/inc/page.css" />
+<link rel="stylesheet" href="/site.css" />
+<link rel="stylesheet" href="/evaluator-1.css" />
+ 
+<title>JavaScript > Evaluator</title>
+
+</head><body><header id="page-header"><object data="title.svg" type="image/svg+xml"></object></header><div id="main-toolbar"></div><main id="page-content">
+
+<h1>Evaluator</h1>
+
+<p id="page-abstract"></p>
+
+<p>Variables are defined as members of the Global object (<tt>globalThis</tt>). HTML element attributes and object members can be bound to a variable. If the variable is changed by the <tt>evaluator.set</tt> method, all bound attributes and object members are updated.</p>
+
+<p>HTML element attributes and members can be bound to a variable with <tt>data-set</tt> and <tt>data-get</tt> attributes. Object members must be bound with the <tt>evaluator.bind</tt> method. <tt>data-get</tt> elements are read-only, <tt>data-set</tt> elements are read-write.</p>
+
+<p>HTML input elements can call user-defined functions. These functions must be defined as members of the <tt>Global</tt> object (<tt>globalThis</tt>, <tt>window</tt>, &hellip;). The function names are placed in a comma-separated list in the <tt>data-exec</tt> attribute of the element. If the input value of the element changes, the variables in the <tt>data-set</tt> attribute are updated, then the functions in the <tt>data-exec</tt> attribute are updated.</p>
+
+<h2 cbc>An example</h2><div>
+
+<p>This example implements a simple calculator for a right-angled triangle. Type the length of the sides a and b into the input boxes, and the script will calculate various aspects of the triangle.</p>
+
+<div>
+<p>Properties of a right-angled triangle</p>
+<label for="side-a">Side a:</label>
+<input type="text" data-set="sideA" data-member="value" data-exec="pythagoras,area,angles" ><br/>
+<label for="side-b">side a:</label> 
+<input type="text" data-set="sideB" data-member="value" data-exec="pythagoras,area,angles"><br/>
+<label>Hypothenuse length:</label>
+<span data-get="sideC" data-member="innerText"></span><br/>
+<label>Area:</label> <span data-get="triangleArea" data-member="innerText"></span><br/>
+<label>Angle a:</label> <span data-get="angleA" data-member="innerText"></span><br/>
+<label>Angle b:</label> <span data-get="angleB" data-member="innerText"></span>
+</div>
+
+<script type="module">
+globalThis.pythagoras = function ( a = sideA, b = sideB ) {
+	evaluator.set( "sideC", Math.sqrt( Math.pow( +a, 2 ) + Math.pow( +b, 2 )));
+	} ;
+globalThis.area = function ( a=sideA, b=sideB ) { 
+	evaluator.set ( "triangleArea", a * b / 2 );
+	} ;
+globalThis.angles = function ( a=sideA, b=sideB ) {
+	evaluator.set( "angleA", (Math.atan( b / a )/Math.PI * 180).toPrecision(4));
+	evaluator.set( "angleB", (Math.atan( a / b )/Math.PI * 180).toPrecision(4));
+	} ;
+import * as evaluator from "./evaluator-1.js" ;
+evaluator.initPage();
+</script>
+
+<!--h2--></div>
+
+<h2 cbc>Benefits</h2><div>
+
+<p>What are the benefits over manual scripting?</p>
+
+<ol>
+<li>Variable updates are propagated through bindings to the GUI in a consistent manner.</li>
+<li>No event handling code has to be written.</li>
+<li>Configuration replaces coding.</li>
+<li>Focus on implementation of functionality and/or logic.</li>
+</ol>
+
+<p>To fill these statements with meaning, let's investigate the code. First, the HTML code for the data input elements:</p>
+
+<figure><figcaption class="listing">Input elements</figcaption><pre>
+&lt;input type="text" 
+	<hi>data-set</hi>="sideA" 
+	<hi>data-member</hi>="value" 
+	<hi>data-exec</hi>="pythagoras,area,angles"&gt;
+&lt;input type="text" 
+	<hi>data-set</hi>="sideB" 
+	<hi>data-member</hi>="value" 
+	<hi>data-exec</hi>="pythagoras,area,angles"&gt;
+</pre></figure>
+
+<p>The <tt>data-set</tt> and <tt>data-member</tt> attributes indicate that these elements are read/write bound to the variables <tt>sideA</tt> and <tt>sideB</tt>, and the value is read from or written to the <tt>value</tt> member. The <tt>data-exec</tt> attribute carries a list of function names that are to be called if the value member is changed by the user.</p>
+
+<figure><figcaption class="listing">Output elements</figcaption><pre>
+&lt;span <hi>data-get</hi>="triangleArea" <hi>data-member</hi>="innerText"&gt;&lt;/span&gt;
+&lt;span <hi>data-get</hi>="angleA" <hi>data-member</hi>="innerText"&gt;&lt;/span&gt;
+&lt;span <hi>data-get</hi>="angleB" <hi>data-member</hi>="innerText"&gt;&lt;/span&gt;
+</pre></figure>
+
+<p>The <tt>data-get</tt> attribute of the elements above indicate read-only bindings to the specified variable. The <tt>data-member</tt> attribute indicate which member has to be updated.</p>
+
+<p>That is the complete configuration effort. Now to the script code.</p>
+
+<p>The user has to embed or import a JavaScript module into the document. Here is the embedding method shown:</p>
+
+<figure><figcaption class="listing">Input elements</figcaption><pre>
+&lt;script type="module"&gt;
+	...
+&lt;/script&gt;</pre></figure>
+
+<p>If you have followed closely, you will have noticed that three functions were called. They are implemented by the user:</p>
+
+<figure><figcaption class="listing">Input elements</figcaption><pre>
+globalThis.pythagoras = function ( a = sideA, b = sideB ) {
+	evaluator.set( "sideC", Math.sqrt( Math.pow( +a, 2 ) + Math.pow( +b, 2 )));
+	} ;
+globalThis.area = function ( a=sideA, b=sideB ) { 
+	evaluator.set ( "triangleArea", a * b / 2 );
+	} ;
+globalThis.angles = function ( a=sideA, b=sideB ) {
+	evaluator.set( "angleA", (Math.atan( b / a )/Math.PI * 180).toPrecision(4));
+	evaluator.set( "angleB", (Math.atan( a / b )/Math.PI * 180).toPrecision(4));
+	} ;
+</pre></figure>
+
+<p>Note that they are added as members to the <tt>globalThis</tt> object, which is <tt>window</tt> in the case of an HTML document. Also note that the functions update variables with the <tt>evaluator.set</tt> method instead of a direct assignment. You can do that, but then bound object members and element attributes will not be updated automatically. But in every other aspect they are ordinary JavaScript functions without limitations.</p>
+
+<p>Now there is only left one small step: Initialization.</p>
+
+<figure><figcaption class="listing">Initialization</figcaption><pre>
+import * as evaluator from "./evaluator-1.js" ;
+evaluator.initPage();
+</pre></figure>
+
+<p>And that's it. You have a full-functioning triangle calculator.</p>
+
+<!--h2--></div>
+
+<h2 cbc>Some Tricks</h2><div>
+
+<h3>Nested Function Calls</h3><div>
+
+<p>The attribute <tt>data-exec="pythagoras,area,angles"</tt> should be rewritten to something like <tt>data-exec="updateResults"</tt>. And the function implementation forwards to the original functions:</p>
+
+<figure><figcaption class="listing">Input elements</figcaption><pre>
+globalThis.updateResults = function ( ) {
+	pythagoras( );
+	area( );
+	angles( );
+	}
+</pre></figure>
+
+<p>The benefit is that we now have a single place to edit if something has to be changed.</p>
+
+<!--h3--></div>
+
+<h3>One-to-Many Bindings</h3><div>
+
+<p>Multiple objects can be bound to a single variable:</p>
+
+<figure><figcaption class="listing">Binding objects to the same variable</figcaption><pre>
+&lt;span id="e1" data-get="someVariable" data-member="innerText"&gt;&lt;/span&gt;
+&lt;span id="e2" data-get="someVariable" data-member="innerText"&gt;&lt;/span&gt;
+&lt;span id="e3" data-get="someVariable" data-member="innerText"&gt;&lt;/span&gt;
+</pre></figure>
+
+<!--h3--></div>
+
+<!--h2--></div>
+
+<h2 cbc>Distribution and Integration</h2><div>
+
+<p>The module can be found in the files <a href="evaluator-1.js">evaluator.js</a> and <a href="evaluator-1.css">evaluator.css</a>. </p>
+
+<!--h2--></div>
+
+</main><footer id="page-footer"></footer><script type="module" src="/inc/page.js" ></script></body></html>

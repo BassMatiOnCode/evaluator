@@ -1,0 +1,14 @@
+/*		evaluator-1.css    2023-05-21    usp    */
+
+input {
+	border : 1px solid silver ;
+	padding : 5px 10px ;
+	}
+
+input:hover {
+	border : 1px solid darkgray ;
+	}
+
+input:focus {
+	outline-color : orange ;
+	}
