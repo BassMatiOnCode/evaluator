@@ -8,5 +8,5 @@ What remains for the user is to implement the functions to be called.
 
 ## Documentation and Download
 
-The documentation and download can be found in the project [website https://bassmationcode.github.io/evaluator/](website https://bassmationcode.github.io/evaluator/).
+The documentation and download can be found in the project website [https://bassmationcode.github.io/evaluator/](https://bassmationcode.github.io/evaluator/).
 
