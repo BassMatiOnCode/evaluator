@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="template-info" file-name="empty.htm" version="2022-12-01" editor="USP" />
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2023-05-22" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2023-05-22" />
+<meta name="version" content="1" />
+<meta name="categories" content="JavaScript > Libraries > Evaluator, Web Toolbox > Evaluator" />
+<meta name="tags" content="programming, JavaScript, HTML, math, function, evaluator, implementation" />
+<meta name="description" content="Web Toolbox Evaluator component documentaion" />
+
+<link rel="icon" type="image/png" href="/favicon.png" sizes="16x16" />
+<link rel="stylesheet" href="/inc/page.css" />
+<link rel="stylesheet" href="/site.css" />
+<link rel="stylesheet" href="evaluator-1.css" />
+ 
+<title>Web Toolbox > Evaluator > Documentation</title>
+
+</head><body><header id="page-header"><object data="title.svg" type="image/svg+xml"></object></header><div id="main-toolbar"></div><main id="page-content">
+
+<h1>Evaluator Implementation</h1>
+
+<p id="page-abstract"></p>
+
+<h2 cbc>CSS</h2><div>
+
+<p>Input elements have a colored focus outline and a thin light border.</p>
+
+<figure><figcaption class="listing">evaluator.css</figcaption>
+<pre>
+input {
+	border : 1px solid silver ;
+	padding : 5px 10px ;
+	}
+input:hover {
+	border : 1px solid darkgray ;
+	}
+input:focus {
+	outline-color : orange ;
+	}
+</pre></figure>
+
+<!--h2--></div>
+
+<h2 cbc>Script Code</h2><div>
+
+<h3 cbc>Data</h3><div>
+
+<p>We have two objects defined in the module scope:</p>
+
+<figure><figcaption class="listing">evaluator.css</figcaption>
+<pre>
+const updateBindings = { } ;
+const functionBindings = { } ;
+</pre></figure>
+
+<p>They are used as associative arrays (key-value pairs), where the key is identical to the variable name.</p>
+
+<p>The entries in <tt>updateBindings</tt> are key-value pairs, where key is the name of the bound property, and value is an array:</p>
+
+<pre>name : [ ]</pre>
+
+<p>The array elements are <em>property bindings</em> with the following signature:</p>
+
+<pre>{ target : objectReference , property : propertyName }</pre>
+
+<p>An update target object property is then accessed with</p>
+
+<pre>
+updateBinding.variableName[ i ].target[ updateBinding.property ]
+updateBinding[ variableName ][ i ].target[ updateBinding.property ]
+</pre>
+
+<p>Both versions are equivalent, and <tt>i</tt> is an index that iterates over the array elements.</p>
+
+<p>Similarly, the <tt>functionBindings</tt> objects associates variable names with arrays of functions:</p>
+
+<pre>name : [ ]</pre>
+
+<p>The array elements are function references. If a variable is changed with the <tt>set</tt> function, the associated functions are called:</p>
+
+<pre>functionBindings.variableName[ i ].call( )</pre>
+
+<!--h3--></div>
+
+<h3 cbc>Setting a Variable</h3><div>
+
+<p>Bound variables should not be set with a simple assignment <tt>variableName = value</tt>. Instead, the <tt>evaluator.set</tt> function should be used. To get a better understanding, let's have a look at the code:</p>
+
+<figure><figcaption class="listing">evaluator.css</figcaption>
+<pre>
+export function set ( name, value ) {
+		<cc>// Assign a new value</cc>
+	if ( globalThis[ name ] === value ) return ;
+	globalThis[ name ] = value ;
+		<cc>// Update bound properties</cc>
+	let bindings = updateBindings[ name ] || [ ] ;
+	for ( let binding of bindings ) binding.object [ binding.property ] = value ;
+		<cc>// Call bound functions</cc>
+	bindings = functionBindings[ name ] || [ ] ;
+	for ( const fn of bindings ) {
+		try { fn.call( ); }
+			<cc>// Errors logged but don't break script execution</cc>
+		catch( e ){ console.log( e ); }
+		}
+	}
+</pre></figure>
+
+<p>After assigning a new value to the variable, the property binding list for the variable is retrieved. <tt>binding.object</tt> references the object to be updated, and <tt>binding.property</tt> is a string value, holding the property name. The instruction</p>
+
+<pre>binding.object [ binding.property ] = value</pre>
+
+<p>updates the property with the new value.</p>
+
+<p>The next step retrieves the function bindings for the variable. Each function in the array is called:</p>
+
+<pre>fn.call( )</pre>
+
+<p>The function call is enclosed in a try-catch structure, because it is quite normal for the first few runs that some variables are still undefined. The error is logged to the console and can be used for debugging, but the script will not be broken.</p>
+
+<!--h3--></div>
+
+<h3 cbc>Input Element Change Event Handler</h3><div>
+
+<p>Next is the <tt>inputChangeHandler</tt>, which is called if a bound input element is changed by the user:</p>
+
+<figure><figcaption class="listing">evaluator.css</figcaption>
+<pre>
+function inputChangeHandler( evt ) {
+		<cc>// Get the binding information</cc>
+	const name = evt.target.getAttribute( "data-set" );
+	const value = evt.target.hasAttribute( "data-attrib" ) ? 
+		evt.target.getAttribute( evt.target.getAttribute( "data-attrib" )) : 
+		evt.target[ evt.target.getAttribute( "data-member" )] ;
+	console.log ( `${name} = ${value}` );
+		<cc>// Set the variable to the input value</cc>
+	set( name, value );
+	}
+</pre></figure>
+
+<p>The code retrieves the associated variable name and the current value from the input element. Here we must distinguish between two different value sources, attributes or properties. If the source is an attribute, <tt>getAttribute()</tt> is used to get the current value. If the source is an HTML element property, it is accessed with the indexer syntax <tt>object[ propertyName ]</tt>.</p>
+
+<p>Now we have the arguments to call the <tt>set</tt> method to update the variable, as described above.</p>
+
+<!--h3--></div>
+
+<h3 cbc>Initialization</h3><div>
+
+<p>The module implements the function <tt>initPage</tt>, which must be called by the HTML document author. The code retrieves all input elements with a <tt>data-get</tt> attribute. This are the read-only bound objects. The name of the associated variable is stored in the <tt>data-get</tt> attribute. The actual update binding is created with a call to <tt>addElementUpdateBinding( name, elementRef )</tt>. Details further down.</p>
+
+<figure><figcaption class="listing">evaluator.css</figcaption>
+<pre>
+export function initPage ( ) {
+		<cc>// Bind read-only elements to a variable</cc>
+	document.querySelectorAll( "[data-get]" )
+		.forEach( element => addElementUpdateBinding( element.getAttribute( "data-get" ), element )) ;
+		<cc>// Bind read-write elements and add an input change event handler</cc>
+	document.querySelectorAll( "[data-set]" ).forEach( element => { 
+		addElementUpdateBinding( element.getAttribute( "data-set" ), element ) ;
+		addFunctionBindings( element.getAttribute( "data-set" ), element.getAttribute( "data-exec" ));
+		element.addEventListener( "change", inputChangeHandler )
+		} ) ;  
+	}
+</pre></figure>
+
+<p>Similarly, read-write input elements are declared with the <tt>data-set</tt> attribute. The code creates an update binding with <tt>addElementUpdateBinding()</tt>, as seen above. Additionally, input elements may have declared a list of functions to be called if the associated variable is change. These bindings are created with <tt>addFunctionBindings()</tt>.</p>
+
+<p>Finally, a change event handler, described above, is registered with the input element.</p>
+
+<!--h3--></div>
+
+<h3 cbc>Creating Update Bindings</h3><div>
+
+<p>Now let's see how the element update bindings are created:</p>
+
+<figure><figcaption class="listing">evaluator.css</figcaption>
+<pre>
+export function addElementUpdateBinding( name, element ) {
+	if ( element.hasAttribute( "data-member" )) {
+		addPropertyUpdateBinding( name, element, element.getAttribute( "data-member" ));
+		}
+	else if ( element.hasAttribute( "data-attrib" )) {
+		addPropertyUpdateBinding( name, element.attributes[ element.getAttribute( "data-attrib" )], "value" ) ;
+		}
+	else throw new Error( "evaluator.js:initPage(): No update attribute or property specified." ); 
+	}
+</pre></figure>
+
+<p>The function takes a variable name and an HTML element reference argument. First, the value source is determined from the element. It can be an object property, specified in the <tt>data-member</tt> attribute, or an element attribute, specified in the <tt>data-attrib </tt> attribute. In the first case, bound variable name, update target object reference and property name are passed to <tt>addPropertyUpdateBinding()</tt>, which takes care of the rest.</p>
+
+<p>In the second case, the update target object is an element of the element attributes list, accessed with <tt>element.attributes[ attributeName ]</tt>. The property name in this case is always "value". Then these arguments are passed to <tt>addPropertyUpdateBinding()</tt> as before.</p>
+
+<p>This was a preparation step, needed for HTML elements. Now the code that actually creates the property update binding.</p>
+
+<p>The function has three parameters: The variable name, the update target object, and the target object property name.</p>
+
+<p class="note">NOTE: This function can also be called from a script to create an update property binding programmatically.</p>
+
+<figure><figcaption class="listing">evaluator.css</figcaption>
+<pre>
+export function addPropertyUpdateBinding ( name, object, propertyName ) {
+		<cc>// Get the binding for the named variable</cc>
+	const bindings = updateBindings[ name ] || ( updateBindings[ name ] = [ ] );
+		<cc>// Prevent multiple references to the same target.</cc>
+	for ( const binding of bindings ) if ( binding.object === object && binding.property === propertyName ) return ;
+		<cc>// Add the element reference to the binding.</cc>
+	bindings.push( { object : object, property : propertyName } );
+	}
+</pre></figure>
+
+<p>The function code retrieves the object update bindings and compares object references and property names with the input arguments. If they are identical, the binding already exists and the function returns to the caller.</p>
+
+<p>Otherwise, a new update binding object is created and appended to the bindings list.</p>
+
+<!--h3--></div>
+
+<h3 cbc>Creating Function Bindings</h3><div>
+
+<p>Function bindings are created similarly. The method has two parameters, the  name of the bound variable, and a list of functions. This can be a string with a comma-separated list of function names or an array of function names:</p>
+
+<figure><figcaption class="listing">evaluator.css</figcaption>
+<pre>
+export function addFunctionBindings ( name, functions ) {
+		<cc>// Make sure that functions is an array of function names</cc>
+	if ( typeof functions === "string" ) functions = functions.split( /\s*,\s*/ ) ;
+		<cc>// Get the function bindings for the variable name</cc>
+	const bindings = functionBindings[ name ] || (functionBindings[ name ] = [ ] );
+		<cc>// Iterate over incoming function names</cc>
+	for ( const fn of functions ) { addCallBinding : {
+				<cc>// Prevent duplicate function bindings</cc>
+			for ( const binding of bindings ) if ( binding.name === fn ) break addCallBinding ;
+				<cc>// Add the new function reference to the bindings list.</cc>
+			bindings.push( globalThis[ fn ] );
+			}
+		}
+	}
+</pre></figure>
+
+<p>These function names are compared with the entries in the function bindings array of this variable. In the input function name is identical to the existing function name, the break statement bails out and skips the registration.</p>
+
+<p>The function registration statement at the bottom retrieves a function reference from the function name and pushes it to the <tt>bindings</tt> list.</p>
+
+<!--h3--></div>
+
+<!--h2--></div>
+
+
+
+</main><footer id="page-footer"></footer><script type="module" src="/inc/page.js" ></script></body></html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="template-info" file-name="empty.htm" version="2022-12-01" editor="USP" />
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2023-05-22" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2023-05-22" />
+<meta name="version" content="1" />
+<meta name="categories" content="JavaScript > Libraries > Evaluator, Web Toolbox > Evaluator" />
+<meta name="tags" content="programming, JavaScript, HTML, math, function, evaluator, reference" />
+<meta name="description" content="Web Toolbox Evaluator component reference" />
+
+<link rel="icon" type="image/png" href="/favicon.png" sizes="16x16" />
+<link rel="stylesheet" href="/inc/page.css" />
+<link rel="stylesheet" href="/site.css" />
+<link rel="stylesheet" href="evaluator-1.css" />
+ 
+<title>Web Toolbox > Evaluator > Reference</title>
+
+</head><body><header id="page-header"><object data="title.svg" type="image/svg+xml"></object></header><div id="main-toolbar"></div><main id="page-content">
+
+<h1>Evaluator Reference</h1>
+
+<p id="page-abstract"></p>
+
+<dl>
+<dt>export function addElementUpdateBinding( name, element )</dt>
+	<dd>Binds an HTML element property or attribute to a variable.</dd>
+	<dd>name : Name of the bound variable.</dd>
+	<dd>element : Reference to the bound HTML element.</dd>
+	
+<dt>export function addFunctionBindings ( name, functions )</dt>
+	<dd>Binds a variable to a list of functions. The <tt>set()</tt> function executes them if the value of the bound variable is changed.</dd>
+	<dd>name : Name of the bound variable.</dd>
+	<dd>functions : Array of function names or a string with a comma-separated list of function names.</dd>
+
+<dt>export function addPropertyUpdateBinding ( name, objectReference, propertyName )</dt>
+	<dd>Binds a variable to an object property. The <tt>set()</tt> function uses this association to update bound properties with a new value.</dd>
+	<dd>name : Name of the bound variable.</dd>
+	<dd>objectReference : The target object to be updated.</dd>
+	<dd>propertyName : The name of the property to update.</dd>
+
+<dt>data-attrib=attributeName</dt>
+	<dd>Binds an element attribute to a variable.</dd>
+	<dd>attributeName : Name of the attribute.</dd>
+
+<dt>data-get=variableName</dt>
+	<dd>Attribute of an HTML element, indicates a read-only binding.</dd>
+	<dd>variableName : Name of the bound variable.</dd>
+
+<dt>data-member=propertyName</dt>
+	<dd>Binds an element property to a variable.</dd>
+	<dd>propertyName : Name of the bound property.</dd>
+
+<dt>data-set=variableName</dt>
+	<dd>Attribute of an HTML input element, indicates a read-write binding.</dd>
+	<dd>variableName : Name of the bound variable.</dd>
+
+<dt>export function initPage ( )</dt>
+	<dd>Creates the binding information and adds change event handlers to input elements.</dd>
+	<dd>Must be called from the HTML document.</dd>
+
+<dt>export function inputChangeHandler( evt )</dt>
+	<dd>Called when the change event of a bound HTML input elements is fired. Note that programmatic value change from a script does not fire the event. Calls the <tt>set()</tt> function to update the value of the bound variable.</dd>
+	<dd>evt : Change event parameter object</dd>
+	
+<dt>export function set ( name, value )</dt>
+	<dd>Sets the value of a bound global variable, updates bound properties and calls bound functions.</dd>
+	<dd>name : Name of the bound variable</dd>
+	<dd>value : New value for the variable</dd>
+
+</dl>
+
+</main><footer id="page-footer"></footer><script type="module" src="/inc/page.js" ></script></body></html>
