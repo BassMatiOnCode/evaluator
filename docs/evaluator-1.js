@@ -63,12 +63,12 @@ export function addElementUpdateBinding( name, element ) {
 		}
 	else throw new Error( "evaluator.js:initPage(): No update attribute or property specified." );  // TODO: Decide if we can exit silently or throw an error here. 
 	}
-export function initPage ( ) {
+export function initPage ( container=document ) {
 		// Bind read-only elements to a variable
-	document.querySelectorAll( "[data-get]" )
+	container.querySelectorAll( "[data-get]" )
 		.forEach( element => addElementUpdateBinding( element.getAttribute( "data-get" ), element )) ;
 		// Bind read-write elements and add an input change event handler
-	document.querySelectorAll( "[data-set]" ).forEach( element => { 
+	container.querySelectorAll( "[data-set]" ).forEach( element => { 
 		addElementUpdateBinding( element.getAttribute( "data-set" ), element ) ;
 		addFunctionBindings( element.getAttribute( "data-set" ), element.getAttribute( "data-exec" ));
 		element.addEventListener( "change", inputChangeHandler )
