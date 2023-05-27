@@ -1,5 +1,10 @@
 /*		evaluator-1.css    2023-05-21    usp    */
 
+.calculator {
+	border : 1px solid silver ;
+	padding : 10px ;
+	}
+
 input {
 	border : 1px solid silver ;
 	padding : 5px 10px ;

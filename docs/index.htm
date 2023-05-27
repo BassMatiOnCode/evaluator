@@ -166,6 +166,50 @@ globalThis.updateResults = function ( ) {
 
 <!--h3--></div>
 
+<h3 cbc>Working with Scope</h3><div>
+
+<p><tt>Evaluator</tt> is a JavaScript module and can only be imported into another JavaScript module:</p>
+
+<figure><figcaption class="listing">Standard evaluator import</figcaption><pre>
+&lt;script type="module" id="container"&gt;
+let firstName, lastName;
+import * as evaluator from "/path/to/evaluator-1.js" ;
+&lt;/script&gt;
+</pre></figure>
+
+<p><tt>Evaluator</tt> cannot see the variables declared in the <tt>container</tt> module as shown in the example above. By default, <tt>Evaluator</tt> looks for members of <tt>globalThis</tt>, which is <tt>Window</tt> in the case of HTML documents. If you call <tt>evaluator.set</tt> on an undefined variable, the variable will be created on the <tt>globalThis</tt> object.</p>
+
+<p>But polluting the global namespace with all sorts for names is considered bad practice. To address this conflict, you can put your variables and functions in an object and pass that object reference to <tt>evaluator.initPage()</tt> method:</p>
+
+<figure><figcaption class="listing">Passing a "scope container" to evaluator</figcaption><pre>
+&lt;script type="module" id="container"&gt;
+const myScope = {
+	firstName : "" , 
+	lastName : "" , 
+	update : function ( ) { 
+		firstName="John" ; 
+		lastName="Smith" ; 
+		age = 42 ;
+	} ;
+import * as evaluator from "/path/to/evaluator-1.js" ;
+evaluator.initPage( <hi>{ scope : myScope }</hi> );
+&lt;/script&gt;
+</pre></figure>
+
+<p><tt>Evaluator</tt> stores the scope reference and uses it to access variables and functions.</p>
+
+<!----></div>
+
+<h3 cbc>Initializing Scoped to a Container</h3><div>
+
+<p>By default, <tt>evaluator.initPage()</tt> uses <tt>document.querySelectorAll</tt> to find elements subject to processing. If only a subset of a document must be processed, use a container around the subset and pass a container references in the <tt>options</tt> argument to <tt>initPage()</tt>:</p>
+
+<figure><figcaption class="listing">Limiting element search to a container</figcaption><pre>
+evaluator.initPage( { container : document.getElementById( "container-id" ) } ) ;
+</pre></figure>
+
+<!--h3--></div>
+
 <!--h2--></div>
 
 <h2 cbc>Distribution and Integration</h2><div>
