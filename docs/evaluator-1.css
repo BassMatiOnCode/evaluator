@@ -11,9 +11,17 @@ input {
 	}
 
 input:hover {
-	border : 1px solid darkgray ;
+	border : 1px solid orange ;
 	}
 
 input:focus {
 	outline-color : orange ;
+	}
+
+Input+label {
+	margin-left : 20px ;
+	}
+
+label+input {
+	margin-left: 20px;
 	}

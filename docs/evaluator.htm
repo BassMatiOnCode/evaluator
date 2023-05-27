@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="template-info" file-name="empty.htm" version="2022-12-01" editor="USP" />
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2023-05-21" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2023-05-27" />
+<meta name="version" content="1" />
+<meta name="categories" content="JavaScript > Libraries > Evaluator" />
+<meta name="tags" content="programming, JavaScript, HTML, math, function, evaluator, variable" />
+<meta name="description" content="<em>Evaluator</em> is a JavaScript module that simplifies building calculators. Variables can be bound to HTML element or object properties, and functions. When a variable is changed, bound properties are updated and bound functions are called by the evaluator. This concept is very powerful and allows to quickly build all sorts of complicated, interactive and responsive calculators." />
+
+<link rel="icon" type="image/png" href="/favicon.png" sizes="16x16" />
+<link rel="stylesheet" href="/inc/page.css" />
+<link rel="stylesheet" href="/site.css" />
+<link rel="stylesheet" href="evaluator-1.css" />
+ 
+<title>JavaScript > Evaluator</title>
+
+</head><body><header id="page-header"><object data="title.svg" type="image/svg+xml"></object></header><div id="main-toolbar"></div><main id="page-content">
+
+<h1>Evaluator</h1>
+
+<p id="page-abstract"></p>
+
+<p>The benefits:</p>
+<ul>
+<li>Keeps focus on GUI design and implementation of functionality</li>
+<li>Configuration instead of infrastructure programming</li>
+<li>Event complex calculator are easy to implement</li>
+</ul>
+
+<h2 cbc>An Example</h2><div>
+
+<p>Below is the input doubler, a very simple example. Enter a number in the input field and press return or tab. The result will appear instantly.</p>
+
+<div class="calculator" id="calculator-1">
+<label for="n">Enter a number:</label><input id="n" type="number" data-set="n" data-member="value" data-exec="update"/>
+<label>n doubled = </label><span data-get="nDoubled" data-member="innerText"></span>
+
+<script type="module">
+const calculatorScope = {
+	update : function ( ) {
+		evaluator.set( "nDoubled", 2 * this.n );
+		}
+	}
+import { Evaluator } from "./evaluator-1.js" ;
+const evaluator = new Evaluator( { container: "calculator-1" , scope: calculatorScope } );
+</script>
+</div>
+
+<p >To create this calculator, follow these steps:</p>
+
+<ol>
+<li>Link to the evaluator stylesheet</li>
+<li>Create the HTML input and output elements</li>
+<li>Implement the functionality</li>
+</ol>
+
+<p>Step 1: Link the evaluator stylesheet to your HTML document:</p>
+
+<figure><figcaption class="listing">Linking the evaluator stylesheet</figcaption><pre>
+&lt;link rel="stylesheet" href="path/to/evaluator.css" /&gt;
+</pre></figure>
+
+<p>This helps to style the input and output elements.</p>
+
+<p>Step 2: Create the GUI Elements. </p>
+
+<figure><figcaption class="listing"></figcaption><pre>
+&lt;div <hi>id</hi>="calculator-1"&gt;
+&lt;label for="n"&gt;Enter a number:&lt;/label&gt;
+&lt;input id="n" type="number" 
+	<hi>data-set</hi>="n" 
+	<hi>data-member</hi>="value" 
+	<hi>data-exec</hi>="update"/&gt;
+&lt;label&gt;n doubled = &lt;/label&gt;
+&lt;span 
+	<hi>data-get</hi>="nDoubled"
+	<hi>data-member</hi>="innerText"&gt;
+	&lt;/span&gt;
+&lt;/div&gt;
+</pre></figure>
+
+<p>It is recommended to put the calculator elements in a container and give it a document-wide unique id. Inside, we have an <tt>input</tt> for data input, and a <tt>span</tt> element for showing the results. Both are decorated with some <tt>data-</tt> attributes that provide the information required for binding.</p>
+
+<p>For example, <tt>data-set="n"</tt> means hat this is a read-write element, bound to the variable <tt>n</tt>. The <tt>data-member="innerText"</tt> attribute specifies which element property will be updated by the <tt>Evaluator</tt> when the value of <tt>n</tt> changes.</p>
+
+<p>The <tt>data-exec="update"</tt> binds a <em>function</em> to the bound variable. This function will be called by the <tt>Evaluator</tt> when <tt>n</tt> changes.</p>
+
+<p>Similarly, the attributes <tt>data-get</tt> and <tt>data-member</tt> attribute create a read-only binding between the variable <tt>n</tt> and the <tt>innerText</tt> property of the <tt>span</tt> element.</p>
+
+<p>Step 3: Implement the functionality. The following listing demonstrates the doubling calculator script:</p>
+
+<figure><figcaption class="listing"></figcaption><pre>
+&lt;script type="module" name="calculator-1"&gt;
+const calculatorScope = {
+	update : function ( ) {
+		evaluator.set( "nDoubled", 2 * this.n );
+		}
+	}
+import { Evaluator } from "./evaluator-1.js" ;
+const evaluator = new Evaluator ( { 
+	container: "calculator-1" , 
+	scope: calculatorScope 
+	} );
+&lt;/script&gt;
+</pre></figure>
+
+<p>The script must be of type "module" because the <tt>Evaluator</tt> component is a JavaScript module. The name is optional, but helps a reader to connect the script to the related HTML elements container.</p>
+
+<p>TIP: The script can be placed in the <tt>div</tt> container, perhaps this is the better way to tie the GUI to the script.</p>
+
+<p>The first instruction creates a local <em>scope</em> object for the <tt>Evaluator</tt>. This object will hold the variables, and this is the place where you define the functions used by the calculator. Specifically, the <tt>update</tt> function, referenced by the <tt>input</tt> element above. The implementation uses the <tt>Evaluator.set()</tt> method to assign the doubled value of <tt>n</tt> to the variable <tt>nDoubled</tt>.</p>
+
+<p>Now the <tt>span</tt> element above has been bound to that variable, so if <tt>nDoubled</tt> is modified, the <tt>span.innerText</tt> property will be updated with the new value.</p>
+
+<p>To complete the code, you have to include two more instructions. The <tt>Evaluator</tt> class object must be imported from the <tt>evaluator.js</tt> module, and an <tt>Evaluator</tt> instance must be created. The constructor receives two arguments in the <tt>options</tt> parameter, the name of the HTML <tt>container</tt> that holds the input and output elements, and a reference to the local scope object, <tt>calculatorScope</tt>.</p>
+
+<p>That's it. Notice that we did not define any variable. They are created implicitly with the first assignment in the <tt>Evaluator.set()</tt> method. But of course you add variables to the <tt>calculatorScope</tt> and preset them to a specific value.</p>
+
+<p>NOTE: You don't need to pass any arguments to the <tt>Evaluator</tt> constructor. In this case, the evaluator searches for HTML decorated with <tt>data-get</tt> and <tt>data-set</tt> attributes in the entire document, and expects the functions defined on the <tt>globalThis</tt> object, which is <tt>window</tt> in the case of HTML documents. But it should be avoided to pollute the global namespace with all sorts of names, and a HTML container prevents name conflicts if you have multiple calculators in the same document.</p>
+
+<!--h2--></div>
+
+<h2 cbc>Some Tricks</h2><div>
+
+<h3>Nested Function Calls</h3><div>
+
+<p>The attribute <tt>data-exec="pythagoras,area,angles"</tt> should be rewritten to something like <tt>data-exec="updateResults"</tt>. And the function implementation forwards to the original functions:</p>
+
+<figure><figcaption class="listing">Input elements</figcaption><pre>
+globalThis.updateResults = function ( ) {
+	pythagoras( );
+	area( );
+	angles( );
+	}
+</pre></figure>
+
+<p>The benefit is that we now have a single place to edit if something has to be changed.</p>
+
+<!--h3--></div>
+
+<h3>One-to-Many Bindings</h3><div>
+
+<p>Multiple objects can be bound to a single variable:</p>
+
+<figure><figcaption class="listing">Binding objects to the same variable</figcaption><pre>
+&lt;span id="e1" data-get="someVariable" data-member="innerText"&gt;&lt;/span&gt;
+&lt;span id="e2" data-get="someVariable" data-member="innerText"&gt;&lt;/span&gt;
+&lt;span id="e3" data-get="someVariable" data-member="innerText"&gt;&lt;/span&gt;
+</pre></figure>
+
+<!--h3--></div>
+
+<h3 cbc>Working with Scope</h3><div>
+
+<p><tt>Evaluator</tt> is a JavaScript module and can only be imported into another JavaScript module:</p>
+
+<figure><figcaption class="listing">Standard evaluator import</figcaption><pre>
+&lt;script type="module" id="container"&gt;
+let firstName, lastName;
+import * as evaluator from "/path/to/evaluator-1.js" ;
+&lt;/script&gt;
+</pre></figure>
+
+<p><tt>Evaluator</tt> cannot see the variables declared in the <tt>container</tt> module as shown in the example above. By default, <tt>Evaluator</tt> looks for members of <tt>globalThis</tt>, which is <tt>Window</tt> in the case of HTML documents. If you call <tt>evaluator.set</tt> on an undefined variable, the variable will be created on the <tt>globalThis</tt> object.</p>
+
+<p>But polluting the global namespace with all sorts for names is considered bad practice. To address this conflict, you can put your variables and functions in an object and pass that object reference to <tt>evaluator.initPage()</tt> method:</p>
+
+<figure><figcaption class="listing">Passing a "scope container" to evaluator</figcaption><pre>
+&lt;script type="module" id="container"&gt;
+const myScope = {
+	firstName : "" , 
+	lastName : "" , 
+	update : function ( ) { 
+		firstName="John" ; 
+		lastName="Smith" ; 
+		age = 42 ;
+	} ;
+import * as evaluator from "/path/to/evaluator-1.js" ;
+evaluator.initPage( <hi>{ scope : myScope }</hi> );
+&lt;/script&gt;
+</pre></figure>
+
+<p><tt>Evaluator</tt> stores the scope reference and uses it to access variables and functions.</p>
+
+<!----></div>
+
+<h3 cbc>Initializing Scoped to a Container</h3><div>
+
+<p>By default, <tt>evaluator.initPage()</tt> uses <tt>document.querySelectorAll</tt> to find elements subject to processing. If only a subset of a document must be processed, use a container around the subset and pass a container references in the <tt>options</tt> argument to <tt>initPage()</tt>:</p>
+
+<figure><figcaption class="listing">Limiting element search to a container</figcaption><pre>
+evaluator.initPage( { container : document.getElementById( "container-id" ) } ) ;
+</pre></figure>
+
+<!--h3--></div>
+
+<!--h2--></div>
+
+<h2 cbc>Distribution and Integration</h2><div>
+
+<p>The module can be found in the files <a href="evaluator.js">evaluator.js</a> and <a href="evaluator.css">evaluator.css</a>. </p>
+
+<!--h2--></div>
+
+</main><footer id="page-footer"></footer><script type="module" src="/inc/page.js" ></script></body></html>
